@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Neighbors</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="static/functions.js" defer></script>
+  <link rel="icon" type="image/x-icon" href="static/neighbors-icon.png">
+  <link rel="stylesheet" href="static/hexagons.css" />
+  <link rel="stylesheet" href="static/overlays.css" />
+  <link rel="stylesheet" href="static/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body onload="populateGrid(); fetchWords();">
+
+  <div class="modal" id="modal-info" loading="lazy">
+    <div class="modal-wrap">
+      <div class="modal-content">
+        <div class="modal-content-top">
+          <h3>How to play</h3>
+          <div class="modal-content-close" onclick="closeInfoModal();">
+            <svg class="close-modal-button" xmlns="http://www.w3.org/2000/svg" width="50" height="50"
+              viewBox="0 0 50 50" overflow="visible" stroke="black" stroke-width="10" stroke-linecap="round">
+              <line x2="50" y2="50" />
+              <line x1="50" y2="50" />
+            </svg>
+          </div>
+        </div>
+        <div class="modal-content-body">
+          <p class="howto-text">Starting from <span id="howto-start"></span>, try to reach <span id="howto-dest"></span>
+            in six moves or less. Make a move by clicking on one of the six neighboring words around the core word.</p>
+          <p class="courier howto-text"><span class="courier" style="font-weight: 600;">Tip: </span>Consider how a word
+            and one of its neighbors relate to each other. They may have similar meanings, or appear in similar phrases
+            together. Which neighbors bridge the gap between the start and destination words?</p>
+        </div>
+      </div>
+      <div class="modal-overlay">
+      </div>
+    </div>
+  </div>
+
+  <header class="header">
+    <div class="nav-menu">
+      <div class="menu-left">
+        <h2 class="logo-text nav-logo" onclick="redirectNeighbors();">Neighbors</h2>
+      </div>
+      <div class="menu-right">
+        <span class="nav-button" onclick="redirectMethods();">Methodology</span>
+        <span class="nav-button" onclick="openInfoModal();">How to play</span>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-content">
+
+    <div class="welcome-screen" id="welcome-screen">
+      <div class="welcome-elements" style="opacity: 0;">
+        <svg class="welcome-logo" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"
+          version="1.1" viewBox="0.0 0.0 288.0 288.0" fill="none" stroke="none" stroke-linecap="square"
+          stroke-miterlimit="10">
+          <clipPath id="g3203006d2ef_0_86.0">
+            <path d="m0 0l288.0 0l0 288.0l-288.0 0l0 -288.0z" clip-rule="nonzero" />
+          </clipPath>
+          <g clip-path="url(#g3203006d2ef_0_86.0)">
+            <path fill="#000000" d="m121.82003 61.225212l0 105.76151l-61.116287 0l0 -105.76151z" fill-rule="evenodd" />
+            <path fill="#000000" d="m60.74849 61.205074l91.58774 52.880756l-30.558144 52.924103l-91.58774 -52.88076z"
+              fill-rule="evenodd" />
+            <path fill="#000000" d="m30.200296 114.08517l91.63108 -52.880756l30.558136 52.9241l-91.63107 52.880753z"
+              fill-rule="evenodd" />
+            <path fill="#ffd924" d="m115.228355 72.726364l0 82.98305l-47.953323 0l0 -82.98305z" fill-rule="evenodd" />
+            <path fill="#ffd924" d="m67.31014 72.71056l71.86196 41.491524l-23.976662 41.525543l-71.86197 -41.49153z"
+              fill-rule="evenodd" />
+            <path fill="#ffd924" d="m43.341286 114.20157l71.89597 -41.49153l23.976654 41.525543l-71.895966 41.49153z"
+              fill-rule="evenodd" />
+            <path fill="#000000" d="m227.25574 122.04237l0 105.76152l-61.116287 0l0 -105.76152z" fill-rule="evenodd" />
+            <path fill="#000000" d="m166.1842 122.02224l91.58774 52.88076l-30.558151 52.924103l-91.58774 -52.880768z"
+              fill-rule="evenodd" />
+            <path fill="#000000" d="m135.636 174.90233l91.63109 -52.880753l30.558136 52.924103l-91.63107 52.880753z"
+              fill-rule="evenodd" />
+            <path fill="#faedae" d="m220.66406 133.54352l0 82.98306l-47.953323 0l0 -82.98306z" fill-rule="evenodd" />
+            <path fill="#faedae" d="m172.74585 133.52773l71.86197 41.49153l-23.97667 41.525528l-71.86195 -41.49153z"
+              fill-rule="evenodd" />
+            <path fill="#faedae" d="m148.777 175.01872l71.89598 -41.491516l23.976654 41.525528l-71.895966 41.49153z"
+              fill-rule="evenodd" />
+            <path fill="#000000" d="m227.25574 0.02542756l0 105.76151l-61.116287 0l0 -105.76151z" fill-rule="evenodd" />
+            <path fill="#000000" d="m166.1842 0.0052906107l91.58774 52.880756l-30.558151 52.924103l-91.58774 -52.88076z"
+              fill-rule="evenodd" />
+            <path fill="#000000" d="m135.636 52.885384l91.63109 -52.880756l30.558136 52.9241l-91.63107 52.88076z"
+              fill-rule="evenodd" />
+            <path fill="#eeeeee" d="m220.66406 11.526575l0 82.983055l-47.953323 0l0 -82.983055z" fill-rule="evenodd" />
+            <path fill="#eeeeee" d="m172.74585 11.510776l71.86197 41.491528l-23.97667 41.525536l-71.86195 -41.491528z"
+              fill-rule="evenodd" />
+            <path fill="#eeeeee" d="m148.777 53.00178l71.89598 -41.491528l23.976654 41.525536l-71.895966 41.49153z"
+              fill-rule="evenodd" />
+            <path fill="#000000" d="m121.804436 182.22183l0 105.761505l-61.11628 0l0 -105.761505z"
+              fill-rule="evenodd" />
+            <path fill="#000000" d="m60.732903 182.20169l91.58773 52.880768l-30.558136 52.924103l-91.58774 -52.880768z"
+              fill-rule="evenodd" />
+            <path fill="#000000" d="m30.184708 235.08179l91.63108 -52.880753l30.558144 52.924103l-91.63108 52.880753z"
+              fill-rule="evenodd" />
+            <path fill="#dbdfe3" d="m115.21277 193.72298l0 82.98305l-47.953323 0l0 -82.98305z" fill-rule="evenodd" />
+            <path fill="#dbdfe3" d="m67.29455 193.70718l71.86196 41.49153l-23.976654 41.525528l-71.86197 -41.49153z"
+              fill-rule="evenodd" />
+            <path fill="#dbdfe3" d="m43.325695 235.19818l71.89598 -41.491516l23.976662 41.525528l-71.89597 41.49153z"
+              fill-rule="evenodd" />
+          </g>
+        </svg>
+
+        <h1 class="logo-text big-text">Neighbors</h1>
+        <p class="welcome-description">Step through synonyms and reach today's destination word.</p>
+        <button class="button play-button" id="play-button">Play</button>
+        <div style="height: 80px;"></div>
+        <p class="welcome-date"></p>
+      </div>
+    </div>
+
+    <div id="game-container">
+
+
+      <div id="hex-container" style="flex: 2;">
+        <div class="win-loss-overlay hidden" id="win-loss-overlay" loading="lazy">
+          <div class="win-loss-elements">
+            <div>
+              <h2 class="logo-text big-text" id="win-loss-heading"></h2>
+              <p class="courier" id="win-loss-desc"></p>
+              <div style="height: 10px;"></div>
+              <button class="button" onclick="revealSolution();">Reveal solution</button>
+              <span style="margin: 0px 10px;">or</span>
+              <button class="button" onclick="resetPuzzle();">Reset puzzle</button>
+            </div>
+          </div>
+          <div class="win-loss-close" onclick="closeWinLoss();">
+            <svg class="win-loss-close-button" xmlns="http://www.w3.org/2000/svg" width="50" height="50"
+              viewBox="0 0 50 50" overflow="visible" stroke="black" stroke-width="10" stroke-linecap="round">
+              <line x2="50" y2="50" />
+              <line x1="50" y2="50" />
+            </svg>
+          </div>
+        </div>
+
+        <ul id="hexGrid">
+          <!--
+        <li class="hex">
+          <p class="hexText"></p>
+        </li>
+        <li class="hex">
+          <p class="hexText"></p>
+        </li>
+        <li class="hex">
+          <p class="hexText"></p>
+        </li>
+        <li class="hex" id="hex-root">
+          <p class="hexText" ></p>
+        </li>
+        <li class="hex">
+          <p class="hexText"></p>
+        </li>
+        <li class="hex">
+          <p class="hexText"></p>
+        </li>
+        <li class="hex">
+          <p class="hexText"></p>
+        </li>
+        -->
+
+        </ul>
+      </div>
+
+      <div class="word-box" style="flex: 1;">
+        <p id="moves-declarator">You have six moves.</p>
+        <div class="step-tracker" id="step-tracker">
+          <span class="underline" id="solve-start"></span>
+          <svg class="solve-elem" id="solve-arrow" xmlns="http://www.w3.org/2000/svg" width="40" height="40"
+            viewBox="0 0 40 40">
+            <g fill="none" stroke="#ffd924" stroke-width="5">
+              <path d="M10,20 H30" /> <!-- Horizontal line -->
+              <path d="M20,10 L30,20 L20,30" /> <!-- Right-pointing arrowhead -->
+            </g>
+          </svg>
+          <span class="solve-elem underline" id="solve-dest"></span>
+        </div>
+
+        <!-- <button class="button" onclick="showWinLoss();">Show win/loss</button> -->
+      </div>
+    </div>
+
+  </section>
+
+  <hr>
+
+  <section class="about-text">
+    <div>
+      <h2 style="margin-bottom: 5px;">About this game</h2>
+      <p class="about-desc">During my senior year of high school (and in the thick of college apps season), I undertook
+        a semester of independent study into machine learning algorithms. Exploring neural networks and natural language
+        processing ultimately led me to imagine a game about word associations, which I quickly and crudely put
+        together with Python and the MatPlotLib library. One year later, “Neighbors” is my attempt to develop that game
+        into a more complete product—one that is more charming, more fun, and accessible to anyone.</p>
+      <p class="about-desc">Based on Stanford’s <a href="https://nlp.stanford.edu/projects/glove/">GloVe model</a> with
+        pre-trained word embeddings, “Neighbors” relies on the same framework that powers LLM’s and generative AI. Words
+        are encoded into vectors, whose distances from each other in multidimensional space represent the words’
+        semantic and contextual similarity. Thus, the nearest vectors to a given word are its neighbors, with meanings
+        closely tied to that of the original word in context. </p>
+      <p class="about-desc">I want to note that this is not the only word associations game out there; in fact, I took
+        healthy doses of inspiration from crosswords, NYT games like Connections and Spelling Bee, and more. Still, I
+        hope that my synonym-filled honeycomb is a somewhat worthy addition to the word game canon. Enjoy!</p>
+    </div>
+
+  </section>
+
+  <footer>
+    <div class="footer-elements">
+      <svg class="footer-logo" onclick="redirectNeighbors();" xmlns:xlink="http://www.w3.org/1999/xlink"
+        xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0.0 0.0 288.0 288.0" fill="none" stroke="none"
+        stroke-linecap="square" stroke-miterlimit="10">
+        <clipPath id="g3203006d2ef_0_86.0">
+          <path d="m0 0l288.0 0l0 288.0l-288.0 0l0 -288.0z" clip-rule="nonzero" />
+        </clipPath>
+        <g clip-path="url(#g3203006d2ef_0_86.0)">
+          <path fill="#000000" d="m121.82003 61.225212l0 105.76151l-61.116287 0l0 -105.76151z" fill-rule="evenodd" />
+          <path fill="#000000" d="m60.74849 61.205074l91.58774 52.880756l-30.558144 52.924103l-91.58774 -52.88076z"
+            fill-rule="evenodd" />
+          <path fill="#000000" d="m30.200296 114.08517l91.63108 -52.880756l30.558136 52.9241l-91.63107 52.880753z"
+            fill-rule="evenodd" />
+          <path fill="#ffd924" d="m115.228355 72.726364l0 82.98305l-47.953323 0l0 -82.98305z" fill-rule="evenodd" />
+          <path fill="#ffd924" d="m67.31014 72.71056l71.86196 41.491524l-23.976662 41.525543l-71.86197 -41.49153z"
+            fill-rule="evenodd" />
+          <path fill="#ffd924" d="m43.341286 114.20157l71.89597 -41.49153l23.976654 41.525543l-71.895966 41.49153z"
+            fill-rule="evenodd" />
+          <path fill="#000000" d="m227.25574 122.04237l0 105.76152l-61.116287 0l0 -105.76152z" fill-rule="evenodd" />
+          <path fill="#000000" d="m166.1842 122.02224l91.58774 52.88076l-30.558151 52.924103l-91.58774 -52.880768z"
+            fill-rule="evenodd" />
+          <path fill="#000000" d="m135.636 174.90233l91.63109 -52.880753l30.558136 52.924103l-91.63107 52.880753z"
+            fill-rule="evenodd" />
+          <path fill="#faedae" d="m220.66406 133.54352l0 82.98306l-47.953323 0l0 -82.98306z" fill-rule="evenodd" />
+          <path fill="#faedae" d="m172.74585 133.52773l71.86197 41.49153l-23.97667 41.525528l-71.86195 -41.49153z"
+            fill-rule="evenodd" />
+          <path fill="#faedae" d="m148.777 175.01872l71.89598 -41.491516l23.976654 41.525528l-71.895966 41.49153z"
+            fill-rule="evenodd" />
+          <path fill="#000000" d="m227.25574 0.02542756l0 105.76151l-61.116287 0l0 -105.76151z" fill-rule="evenodd" />
+          <path fill="#000000" d="m166.1842 0.0052906107l91.58774 52.880756l-30.558151 52.924103l-91.58774 -52.88076z"
+            fill-rule="evenodd" />
+          <path fill="#000000" d="m135.636 52.885384l91.63109 -52.880756l30.558136 52.9241l-91.63107 52.88076z"
+            fill-rule="evenodd" />
+          <path fill="#eeeeee" d="m220.66406 11.526575l0 82.983055l-47.953323 0l0 -82.983055z" fill-rule="evenodd" />
+          <path fill="#eeeeee" d="m172.74585 11.510776l71.86197 41.491528l-23.97667 41.525536l-71.86195 -41.491528z"
+            fill-rule="evenodd" />
+          <path fill="#eeeeee" d="m148.777 53.00178l71.89598 -41.491528l23.976654 41.525536l-71.895966 41.49153z"
+            fill-rule="evenodd" />
+          <path fill="#000000" d="m121.804436 182.22183l0 105.761505l-61.11628 0l0 -105.761505z" fill-rule="evenodd" />
+          <path fill="#000000" d="m60.732903 182.20169l91.58773 52.880768l-30.558136 52.924103l-91.58774 -52.880768z"
+            fill-rule="evenodd" />
+          <path fill="#000000" d="m30.184708 235.08179l91.63108 -52.880753l30.558144 52.924103l-91.63108 52.880753z"
+            fill-rule="evenodd" />
+          <path fill="#dbdfe3" d="m115.21277 193.72298l0 82.98305l-47.953323 0l0 -82.98305z" fill-rule="evenodd" />
+          <path fill="#dbdfe3" d="m67.29455 193.70718l71.86196 41.49153l-23.976654 41.525528l-71.86197 -41.49153z"
+            fill-rule="evenodd" />
+          <path fill="#dbdfe3" d="m43.325695 235.19818l71.89598 -41.491516l23.976662 41.525528l-71.89597 41.49153z"
+            fill-rule="evenodd" />
+        </g>
+      </svg>
+      <h3 class="logo-text footer-name" onclick="redirectNeighbors();">Neighbors</h3>
+    </div>
+    <p class="footer-text">Site by Minoo Jang. Dec 2024.</p>
+  </footer>
+
+</body>
+
+<script type="text/javascript">
+  document.getElementById("play-button").addEventListener("click", function () {
+    document.getElementById("welcome-screen").classList.add("hidden");
+  });
+
+  // Event delegation: listen for clicks on #hex-container li.neighbors elements, send to onClickNeighbor()
+  document.getElementById('hex-container').addEventListener('click', function (event) {
+    const hexElement = event.target.closest('li');
+    if (hexElement && hexElement.classList.contains('neighbors')) {
+      onClickNeighbor(hexElement);
+    }
+  });
+</script>
+
+</html>

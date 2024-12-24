@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Neighbors - Methodology</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/neighbors/static/functions.js" defer></script>
+  <link rel="icon" type="image/x-icon" href="/neighbors/static/neighbors-icon.png">
+  <link rel="stylesheet" href="/neighbors/static/overlays.css" />
+  <link rel="stylesheet" href="/neighbors/static/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <header class="header">
+    <div class="nav-menu">
+      <div class="menu-left">
+        <h2 class="logo-text nav-logo" onclick="redirectNeighbors();">Neighbors</h2>
+      </div>
+    </div>
+  </header>
+
+  <section class="method-text">
+    <div>
+      <h2 style="margin-bottom: 5px;">Methodology</h2>
+      <p class="method-desc">“Neighbors” is a word associations game, designed and realized in December 2024. It’s my
+        second website-from-scratch, and an exploration of the foundational layer of modern LLM’s. View the source code
+        <a href="https://github.com/trominoes/trominoes.github.io">here.</a>
+      </p>
+      <h3 class="method-heading">About GloVe</h3>
+      <p class="method-desc">From the start, I used GloVe to develop the word lists and vocabulary behind “Neighbors.”
+        GloVe stands for <a href="https://nlp.stanford.edu/projects/glove/">Global Vectors for Word Representation</a>, and was created by Jeffrey Pennington, Richard Socher,
+        and Christopher D. Manning in 2014. At its core, GloVe is an unsupervised learning algorithm that computes
+        vector representations of words, based on each word’s probability of co-occurrence with other words in a given
+        training corpus. </p>
+      <p class="method-desc">These vector representations contain rich information about words’ similarity and
+        relationships to one another. For example, the ‘nearest neighbors’ of a word vector (i.e. vectors with least
+        Euclidean distance from the target word) are those which we’d expect to have the most related definitions or
+        linguistic uses; they are often synonyms with the target word or appear in the same phrases/contexts. (This
+        property of GloVe is ultimately what the game relies upon to depict similar words!)</p>
+      <p class="method-desc">Vector representations also reveal ‘linear substructures,’ or a kind of quantified relation
+        between word pairs. That is, vector differences can capture verifiable distinctions in meaning:</p>
+      <div style="text-align: center;"><img src="https://nlp.stanford.edu/projects/glove/images/man_woman.jpg" class="method-img"></div>
+      <p class="method-desc">While the game does not make use of these substructures, I think it’s a fascinating feature
+        of GloVe worth further inspection.</p>
+      <p class="method-desc">In “Neighbors,” I utilized the pre-trained, 400,000-word dataset from Wikipedia 2014 and
+        Gigaword 5. Future extensions of this game might involve deriving new vector representations of words based on a
+        different/updated corpus of my choosing!</p>
+      <h3 class="method-heading">Word validation</h3>
+      <p class="method-desc">Though GloVe’s 400k-word dataset provided a good baseline, I found that not all words would
+        be suitable for a game. Within the pre-trained model, there are fragments, like <span class="method-bold">(</span>, <span class="method-bold">‘nt</span>, and <span class="method-bold">’re</span>. There are
+        obscure and esoteric names, like <span class="method-bold">Chernyakhov</span> and <span class="method-bold">Zhiqing</span>. Last, there are words that are just a little boring,
+        like <span class="method-bold">there</span>, <span class="method-bold">two</span>, and <span class="method-bold">Thursday</span>. </p>
+      <p class="method-desc">To improve the list of starting words for “Neighbors,” I selected a range of words that
+        would feel familiar but not extremely common. (By order of frequency, this was the 2500th to the 4500th word.)
+        Then, each word was validated such that it had to contain only alphabetic characters, be greater than three
+        characters long, and not be a common proper noun like a first name or country. I also manually sorted through
+        the list to block words that might lead to problematic content. A total of 1530 start words were passed.</p>
+      <p class="method-desc">Next, I selected a range of words that would serve as the total vocabulary of the game, and
+        might be shown as neighboring words to the player. (This was roughly the top 10,000 words in the dataset, by
+        frequency.) For each word, I found its six nearest valid neighbors, which were required to contain only
+        alphabetic characters, and not be a simple variation of the target word (e.g. attaching or removing an ‘-s’ to
+        pluralize.) Then, the target word and list of six valid neighbors were passed as a key-value pair into a
+        dictionary/map. All vector information was stripped from the variables.</p>
+      <p class="method-desc">Finally, my Python program exported the starting word list and neighbors dictionary/map as
+        JSON’s, for the website’s use.</p>
+      <h3 class="method-heading">Randomization</h3>
+      <p class="method-desc">Like similar online word games (see below for inspirations), I wanted “Neighbors” to follow
+        a randomized daily puzzle format. But because this GitHub page is hosted statically, daily start words and
+        solutions cannot be sent server-side and must be generated dynamically from the browser. </p>
+      <p class="method-desc">To ensure that all devices would receive the same puzzle on the same day, I used a series
+        of date-based hashes and a seeded Pseudo-Random Number Generator (PRNG). </p>
+      <p class="method-desc">Selection of the start word must be randomized, to avoid any day-by-day ordering in
+        difficulty. I chose to shuffle the valid word list before export, thereby ‘baking in’ randomness and allowing
+        start words to be chosen iteratively. A current date hash computes the number of days since a reference date,
+        and passes that value as an index of the list. The start word at that index is selected, which is unique over a
+        period of 1530 days.</p>
+      <p class="method-desc">Selecting the solution path required multiple iterations of selecting a random neighbor of
+        the target word. In this case, I used the cyrb128 hash to first generate a 128-bit random seed from the current
+        date, and then seeded the sfc32 PRNG to randomly select neighbors. Both of those functions utilize code from <a
+          href="https://stackoverflow.com/questions/521295/seeding-the-random-number-generator-in-javascript">this Stack
+          Overflow response.</a></p>
+      <p class="method-desc">Thanks Internet!</p>
+      <h3 class="method-heading">The hex grid</h3>
+      <p class="method-desc">My original prototype of “Neighbors” in Python and MatPlotLib used Principal Component
+        Analysis (PCA), a data analysis and visualization technique, to reduce the dataset’s high-dimensional vectors to
+        two dimensions. Target words and their neighbors were then depicted in 2D space, with target words centered at
+        the origin and neighbors’ positions being defined by their vector difference and distance.</p>
+      <p class="method-desc">However, I eventually discarded this approach in favor of cleanliness and playability. The
+        player loses some information about words’ relationships, but neighbors do not collide with each other on
+        screen, and the game is better suited for small screen devices. Instead of PCA, a target words’ neighbors are
+        represented an equal distance away in uniform hexagonal cells.</p>
+      <p class="method-desc">This design is a familiar one to many word game players (see below), but also innovates
+        with its much larger grid system. Because I wanted cells and neighbors to be revealed along the player’s search
+        path, I needed to build a CSS Grid that was wide and tall enough to accommodate six-move search paths in any
+        direction. My solution was a roughly 13-by-13 grid of hex cells, with the puzzle’s start word located at the
+        center. </p>
+      <p class="method-desc">On click of a neighbor word, I designed Javascript functions to pull new neighbors from the
+        dictionary/map JSON, populate new hex cells, and check for a game win or loss. I also wrote a grid-centering
+        function to re-center the hex grid around the current target word.</p>
+      <h3 class="method-heading">Inspirations</h3>
+      <p class="method-desc">If you’ve made it this far, thanks for reading! Please start a conversation with me if you
+        have any questions about anything I’ve written here. </p>
+      <p class="method-desc">Before I go, I’d like to acknowledge/admire some key inspirations, without which this game
+        would not otherwise exist. NYT’s Spelling Bee and spellbee.org, which heavily influenced the UI and general
+        appearance of this site. Wordle, which convinced me that I could build it all myself. And GamePigeon’s word
+        hunt. I love word hunt.</p>
+      <p class="method-desc">Minoo</p>
+
+    </div>
+
+  </section>
+
+  <footer>
+    <div class="footer-elements">
+      <svg class="footer-logo" onclick="redirectNeighbors();" xmlns:xlink="http://www.w3.org/1999/xlink"
+        xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0.0 0.0 288.0 288.0" fill="none" stroke="none"
+        stroke-linecap="square" stroke-miterlimit="10">
+        <clipPath id="g3203006d2ef_0_86.0">
+          <path d="m0 0l288.0 0l0 288.0l-288.0 0l0 -288.0z" clip-rule="nonzero" />
+        </clipPath>
+        <g clip-path="url(#g3203006d2ef_0_86.0)">
+          <path fill="#000000" d="m121.82003 61.225212l0 105.76151l-61.116287 0l0 -105.76151z" fill-rule="evenodd" />
+          <path fill="#000000" d="m60.74849 61.205074l91.58774 52.880756l-30.558144 52.924103l-91.58774 -52.88076z"
+            fill-rule="evenodd" />
+          <path fill="#000000" d="m30.200296 114.08517l91.63108 -52.880756l30.558136 52.9241l-91.63107 52.880753z"
+            fill-rule="evenodd" />
+          <path fill="#ffd924" d="m115.228355 72.726364l0 82.98305l-47.953323 0l0 -82.98305z" fill-rule="evenodd" />
+          <path fill="#ffd924" d="m67.31014 72.71056l71.86196 41.491524l-23.976662 41.525543l-71.86197 -41.49153z"
+            fill-rule="evenodd" />
+          <path fill="#ffd924" d="m43.341286 114.20157l71.89597 -41.49153l23.976654 41.525543l-71.895966 41.49153z"
+            fill-rule="evenodd" />
+          <path fill="#000000" d="m227.25574 122.04237l0 105.76152l-61.116287 0l0 -105.76152z" fill-rule="evenodd" />
+          <path fill="#000000" d="m166.1842 122.02224l91.58774 52.88076l-30.558151 52.924103l-91.58774 -52.880768z"
+            fill-rule="evenodd" />
+          <path fill="#000000" d="m135.636 174.90233l91.63109 -52.880753l30.558136 52.924103l-91.63107 52.880753z"
+            fill-rule="evenodd" />
+          <path fill="#faedae" d="m220.66406 133.54352l0 82.98306l-47.953323 0l0 -82.98306z" fill-rule="evenodd" />
+          <path fill="#faedae" d="m172.74585 133.52773l71.86197 41.49153l-23.97667 41.525528l-71.86195 -41.49153z"
+            fill-rule="evenodd" />
+          <path fill="#faedae" d="m148.777 175.01872l71.89598 -41.491516l23.976654 41.525528l-71.895966 41.49153z"
+            fill-rule="evenodd" />
+          <path fill="#000000" d="m227.25574 0.02542756l0 105.76151l-61.116287 0l0 -105.76151z" fill-rule="evenodd" />
+          <path fill="#000000" d="m166.1842 0.0052906107l91.58774 52.880756l-30.558151 52.924103l-91.58774 -52.88076z"
+            fill-rule="evenodd" />
+          <path fill="#000000" d="m135.636 52.885384l91.63109 -52.880756l30.558136 52.9241l-91.63107 52.88076z"
+            fill-rule="evenodd" />
+          <path fill="#eeeeee" d="m220.66406 11.526575l0 82.983055l-47.953323 0l0 -82.983055z" fill-rule="evenodd" />
+          <path fill="#eeeeee" d="m172.74585 11.510776l71.86197 41.491528l-23.97667 41.525536l-71.86195 -41.491528z"
+            fill-rule="evenodd" />
+          <path fill="#eeeeee" d="m148.777 53.00178l71.89598 -41.491528l23.976654 41.525536l-71.895966 41.49153z"
+            fill-rule="evenodd" />
+          <path fill="#000000" d="m121.804436 182.22183l0 105.761505l-61.11628 0l0 -105.761505z" fill-rule="evenodd" />
+          <path fill="#000000" d="m60.732903 182.20169l91.58773 52.880768l-30.558136 52.924103l-91.58774 -52.880768z"
+            fill-rule="evenodd" />
+          <path fill="#000000" d="m30.184708 235.08179l91.63108 -52.880753l30.558144 52.924103l-91.63108 52.880753z"
+            fill-rule="evenodd" />
+          <path fill="#dbdfe3" d="m115.21277 193.72298l0 82.98305l-47.953323 0l0 -82.98305z" fill-rule="evenodd" />
+          <path fill="#dbdfe3" d="m67.29455 193.70718l71.86196 41.49153l-23.976654 41.525528l-71.86197 -41.49153z"
+            fill-rule="evenodd" />
+          <path fill="#dbdfe3" d="m43.325695 235.19818l71.89598 -41.491516l23.976662 41.525528l-71.89597 41.49153z"
+            fill-rule="evenodd" />
+        </g>
+      </svg>
+      <h3 class="logo-text footer-name" onclick="redirectNeighbors();">Neighbors</h3>
+    </div>
+    <p class="footer-text">Site by Minoo Jang. Dec 2024.</p>
+  </footer>
+
+</body>
+
+</html>
