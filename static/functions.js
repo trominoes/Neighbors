@@ -195,7 +195,7 @@ function selectStart(words) {
    between 0 and length. One word is selected per day.
 */
 function createHashIndex(length) {
-    const referenceDate = new Date('2024-12-13');
+    const referenceDate = new Date(2024, 11, 13, 0, 0, 0, 0);
     const currentDate = new Date();
 
     const timeDifference = currentDate - referenceDate;
